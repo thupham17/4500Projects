@@ -80,7 +80,7 @@ def runpower1(matrix, n):
     # within T iterations.  The function should return an error code in that
     # case
     eig = (v.T@M@v)/(v.T@v)
-    return eig, v
+    return eig, np.ravel(v)
 
 def runpower2(matrix, n,v):
     #print(v)
@@ -107,7 +107,7 @@ def runpower2(matrix, n,v):
     # within T iterations.  The function should return an error code in that
     # case
     eig = (v.T@M@v)/(v.T@v)
-    return eig, v
+    return eig, np.ravel(v)
 
 def eigen(M, n, tol):
     vector = np.zeros((M.shape[1],100000))
@@ -115,27 +115,25 @@ def eigen(M, n, tol):
     eig[0], vector[:,0] = runpower1(M,n)
     i = 0
     while (eig[i]/eig[0] >= tol):
-        print('i=',i)
-        if i == 1:
-            break
-        M1= M - eig*eigv.reshape(-1,1)@np.array([eigv])
-        w = np.zeros(n)
-        for j in range(n):
-            w[j] = np.random.uniform(0,1)
-        w0 = w.reshape(-1,1) - np.array([eigv])@w.reshape(-1,1)*eigv.reshape(-1,1)
-        eig[i+1], vector[:,i+1] = runpower2(M1,n, w0)
+        M1= M - eig[i]*vector[:,i].reshape(-1,1)@np.array([vector[:,i]])
+        w = np.random.rand(n)
+        w0 = w.reshape(-1,1) - np.array([vector[:,i]])@w.reshape(-1,1)*vector[:,i].reshape(-1,1)
+        eig[i+1], vector[:,i+1] = runpower2(M1,n,w0)
         i = i+1
 
-    return vector, eig
+    return vector[:,0:i+1], eig[0:i+1]
 
 if __name__ == '__main__':
     M, n = inputfile()
-    #print('M',M[0:10,0:10])
-    #vector, eig = eigen(M,n,0.7)
-    #print(eig)
-    eig,eigv = np.linalg.eigh(M)
-    print(eig[::-1][0:10])
-    print(eigv[::-1][0:10])
+    #Check with numpy function
+    vector, eig = eigen(M,n,0.7)
+
+    #Check with numpy function
+    #eig,eigv = np.linalg.eigh(M)
+
+
+    print('eigenvalues: ', eig)
+    print('eigenvector: ', vector)
     #seig = np.sort(eig)[::-1]
     #print(seig[0:20])
     '''start = time.clock()
