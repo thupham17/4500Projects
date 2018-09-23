@@ -51,70 +51,89 @@ def inputfile():
 
     return matrix, n
 
-def runpower(M, n, eig, v):
-    #Params
-    oldnormw = 0
+def runpower1(matrix, n):
+    v = np.zeros(n)
+    w = np.zeros(n)
+
+    for j in range(n):
+        v[j] = np.random.uniform(0,1)
+
+    #print 'matrix', matrix
+    #print 'v', v
+    T = 10000 #number of iterations
     tolerance = 1e-06
-    convergence = False
-
-    T = 1 #number of iterations
+    oldnormw = 0
     for t in range(T):
-        if t == 0:
-            w0 = np.random.rand(n).reshape(-1,1)
-            #w0 = M@w/np.linalg.norm(M@w)
-            #print(w0[0:10,:])
-            #print(M[0:10,0:10])
-            print('M1',M[0:5,0:5])
-            M = M - eig*v@v.reshape(-1,1)
-            print('M2',M[0:5,0:5])
-            w = w0-((v@w0)*(v).reshape(-1,1))
-            normw = np.linalg.norm(M@w)
-            w = M@w/normw
-            #print(normw)
-            #print(w[0:10])
-        else:
-            normw = np.linalg.norm(M@w)
-            #print(normw)
-            w = M@w/normw
+        w = matrix.dot(v)
+        #print 't', t, 'w',w
+        normw = (np.inner(w,w))**.5
 
-        #print('t: ',t,'normw: ',normw)
+        v = w/normw
+        #print 't',t,'v',v
 
+        #print 't',t,'normw',normw, 'old', oldnormw
         if np.abs(normw - oldnormw)/normw < tolerance:
-            convergence = True
-            #print (t,'breaking')
+            #print ' breaking'
             break
         oldnormw = normw
-    #if convergence == False:
-    #    raise error("Did not converge.")
+    #comment: if t reaches T-1 the algorithm has not converged to tolerance
+    # within T iterations.  The function should return an error code in that
+    # case
+    eig = (v.T@M@v)/(v.T@v)
+    return eig, np.ravel(v)
 
-    #calculate eigen using Raleigh quotient
-    eig = (w.T@M@w)/(w.T@w)
-    #print(eig)
-    return w.T,eig
+def runpower2(matrix, n,v):
+    #print(v)
+    #print 'matrix', matrix
+    #print 'v', v
+    T = 10000 #number of iterations
+    tolerance = 1e-06
+    oldnormw = 0
+    for t in range(T):
+        w = matrix.dot(v)
+        #print(w)
+        #print 't', t, 'w',w
+        normw = np.linalg.norm(w)
+
+        v = w/normw
+        #print 't',t,'v',v
+
+        #print 't',t,'normw',normw, 'old', oldnormw
+        if np.abs(normw - oldnormw)/normw < tolerance:
+            #print ' breaking'
+            break
+        oldnormw = normw
+    #comment: if t reaches T-1 the algorithm has not converged to tolerance
+    # within T iterations.  The function should return an error code in that
+    # case
+    eig = (v.T@M@v)/(v.T@v)
+    return eig, np.ravel(v)
 
 def eigen(M, n, tol):
-    print('i=0')
     vector = np.zeros((M.shape[1],100000))
     eig = np.zeros(100000)
-    vector[:,0], eig[0] = runpower(M, n, eig[0], vector[:,0])
+    eig[0], vector[:,0] = runpower1(M,n)
     i = 0
     while (eig[i]/eig[0] >= tol):
-        print('i=',i)
-        if i == 1:
-            break
-        vector[:,i+1], eig[i+1] = runpower(M, n, eig[i], vector[:,i])
+        M= M - eig[i]*vector[:,i].reshape(-1,1)@np.array([vector[:,i]])
+        w = np.random.rand(n)
+        w0 = w.reshape(-1,1) - np.array([vector[:,i]])@w.reshape(-1,1)*vector[:,i].reshape(-1,1)
+        eig[i+1], vector[:,i+1] = runpower2(M,n,w0)
         i = i+1
 
-    return vector, eig
+    return vector[:,0:i+1], eig[0:i+1]
 
 if __name__ == '__main__':
     M, n = inputfile()
-    #print('M',M[0:10,0:10])
-    #vector, eig = eigen(M,n,0.7)
-    #print(eig)
-    eig,eigv = np.linalg.eigh(M)
-    print(eig[::-1][0:10])
-    print(eigv[::-1][0:10])
+    #Check with numpy function
+    vector, eig = eigen(M,n,0.1)
+
+    #Check with numpy function
+    #eig,eigv = np.linalg.eigh(M)
+
+
+    print('eigenvalues: ', eig)
+    print('eigenvector: ', vector)
     #seig = np.sort(eig)[::-1]
     #print(seig[0:20])
     '''start = time.clock()
