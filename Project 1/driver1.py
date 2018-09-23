@@ -115,10 +115,10 @@ def eigen(M, n, tol):
     eig[0], vector[:,0] = runpower1(M,n)
     i = 0
     while (eig[i]/eig[0] >= tol):
-        M1= M - eig[i]*vector[:,i].reshape(-1,1)@np.array([vector[:,i]])
+        M= M - eig[i]*vector[:,i].reshape(-1,1)@np.array([vector[:,i]])
         w = np.random.rand(n)
         w0 = w.reshape(-1,1) - np.array([vector[:,i]])@w.reshape(-1,1)*vector[:,i].reshape(-1,1)
-        eig[i+1], vector[:,i+1] = runpower2(M1,n,w0)
+        eig[i+1], vector[:,i+1] = runpower2(M,n,w0)
         i = i+1
 
     return vector[:,0:i+1], eig[0:i+1]
@@ -126,7 +126,7 @@ def eigen(M, n, tol):
 if __name__ == '__main__':
     M, n = inputfile()
     #Check with numpy function
-    vector, eig = eigen(M,n,0.7)
+    vector, eig = eigen(M,n,0.1)
 
     #Check with numpy function
     #eig,eigv = np.linalg.eigh(M)
