@@ -9,7 +9,12 @@ import numpy as np
 import sys
 import time
 
+'''class NoConvergence(Error):
+   Raised when power method does not converge.
+   sys.exit("Power method did not converge.")'''
+
 def inputfile():
+    '''Reads the input file'''
     # stop the program and print an error message if no input file
     if len(sys.argv) != 2:
         sys.exit("Error: No data file.")
@@ -20,128 +25,130 @@ def inputfile():
     try:
         f = open(filename, 'r')
     except IOError:
-        print ("Cannot open file %s\n" % filename)
+        print ("Cannot open file \'{0}\'\n".format(filename))
         sys.exit("bye")
 
     # read data
     data = f.readlines()
     f.close()
 
+    # Parse first line
     line0 = data[0].split()
-    #print line0
-
     if len(line0) == 0:
-        sys.exit("empty first line")
+        sys.exit('Empty first line.')
 
-    n = int(line0[1])
-    print ('n = ', n)
 
-    matrix = np.zeros((n,n))
+    if filename == 'russell_cov.txt':
+        n = int(line0[1])
+        matrix = np.zeros((n,n))
+        line1 = data[1].split()
+        #should check that line1[0] is the string 'matrix'
+        for i in range(n):
+            theline = data[i+2].split()
+            for j in range(n):
+                valueij = float(theline[j])
+                matrix[i][j] = valueij
 
-    line1 = data[1].split()
-    #should check that line1[0] is the string 'matrix'
-    for i in range(n):
-        #read line i + 2
-        theline = data[i+2].split()
-        #print i, " -> ", theline
-        for j in range(n):
-            valueij = float(theline[j])
-            #print i, j, numberij
-            matrix[i][j] = valueij
-
+    elif filename == 'missing.dat':
+        n = int(line0[1])
+        print ("n = ", n)
+        m = int(line0[3])
+        print("m = ", m)
+        matrix = np.zeros((n,m))
+        for i in range(n):
+            theline = data[i+1].split()
+            for j in range(m):
+                if theline[j] == 'NA':
+                    valueij = float(-1)
+                else:
+                    valueij = float(theline[j])
+                matrix[i][j] = valueij
     return matrix, n
 
-def runpower1(matrix, n):
-    v = np.zeros(n)
-    w = np.zeros(n)
+def returns(matrix):
+    returns = np.zeros((matrix.shape))
+    for i in range(n):
+        for j in range(m):
+            if j == 0:
+                returns[i][j] = 0
+            else:
+                returns[i][j] = (matrix[i][j] - matrix[i][j-1]) / matrix[i][j-1]
 
-    for j in range(n):
-        v[j] = np.random.uniform(0,1)
+def fillmissing(matrix):
+    n = matrix.shape[0]
+    m = matrix.shape[1]
+    for i in range(n):
+        for j in range(m):
+            if matrix[i][j] == -1:
+                if j == 0:
+                    next_val = 0
+                    for k in range(j+1, m):
+                        if matrix[i][k] != -1:
+                            next_val = matrix[i][k]
+                            break
+                    matrix[i][j] = next_val
+                elif j == m-1:
+                    matrix[i][j] = matrix[i][j-1]
+                else:
+                    next_val = 0
+                    for k in range(j+1, m):
+                        if matrix[i][k] != -1:
+                            next_val = matrix[i][k]
+                            break
+                    matrix[i][j] = (matrix[i][j-1] + next_val) / 2
+    return matrix
 
-    #print 'matrix', matrix
-    #print 'v', v
+def runpower(M,n,w):
+    '''Reads the russell_cov input file'''
     T = 10000 #number of iterations
-    tolerance = 1e-06
+    tol = 1e-06
+    convergence = False
     oldnormw = 0
     for t in range(T):
-        w = matrix.dot(v)
-        #print 't', t, 'w',w
-        normw = (np.inner(w,w))**.5
+        normw = np.linalg.norm(M@w)
+        w = M@w/normw
 
-        v = w/normw
-        #print 't',t,'v',v
-
-        #print 't',t,'normw',normw, 'old', oldnormw
-        if np.abs(normw - oldnormw)/normw < tolerance:
-            #print ' breaking'
+        #convergence
+        if np.abs(normw - oldnormw)/normw < tol:
+            convergence = True
             break
         oldnormw = normw
-    #comment: if t reaches T-1 the algorithm has not converged to tolerance
-    # within T iterations.  The function should return an error code in that
-    # case
-    eig = (v.T@M@v)/(v.T@v)
-    return eig, np.ravel(v)
+    #if convergence == False:
+    #    raise NoConvergence
 
-def runpower2(matrix, n,v):
-    #print(v)
-    #print 'matrix', matrix
-    #print 'v', v
-    T = 10000 #number of iterations
-    tolerance = 1e-06
-    oldnormw = 0
-    for t in range(T):
-        w = matrix.dot(v)
-        #print(w)
-        #print 't', t, 'w',w
-        normw = np.linalg.norm(w)
-
-        v = w/normw
-        #print 't',t,'v',v
-
-        #print 't',t,'normw',normw, 'old', oldnormw
-        if np.abs(normw - oldnormw)/normw < tolerance:
-            #print ' breaking'
-            break
-        oldnormw = normw
-    #comment: if t reaches T-1 the algorithm has not converged to tolerance
-    # within T iterations.  The function should return an error code in that
-    # case
-    eig = (v.T@M@v)/(v.T@v)
-    return eig, np.ravel(v)
+    #Calculate eigen value using Raleigh quotient
+    eig = (w.T@M@w)/(w.T@w)
+    return eig, np.ravel(w)
 
 def eigen(M, n, tol):
     vector = np.zeros((M.shape[1],100000))
     eig = np.zeros(100000)
-    eig[0], vector[:,0] = runpower1(M,n)
+    w0 = np.random.rand(n)
+    eig[0], vector[:,0] = runpower(M,n,w0)
     i = 0
     while (eig[i]/eig[0] >= tol):
         M= M - eig[i]*vector[:,i].reshape(-1,1)@np.array([vector[:,i]])
         w = np.random.rand(n)
         w0 = w.reshape(-1,1) - np.array([vector[:,i]])@w.reshape(-1,1)*vector[:,i].reshape(-1,1)
-        eig[i+1], vector[:,i+1] = runpower2(M,n,w0)
+        eig[i+1], vector[:,i+1] = runpower(M,n,w0)
         i = i+1
 
     return vector[:,0:i+1], eig[0:i+1]
 
 if __name__ == '__main__':
+    # Question 1
     M, n = inputfile()
-    #Check with numpy function
-    vector, eig = eigen(M,n,0.1)
+    eigv, eig = eigen(M,n,0.1)
 
-    #Check with numpy function
-    #eig,eigv = np.linalg.eigh(M)
-
+    #Check eigen values with numpy function
+    npeig,npeigv = np.linalg.eigh(M)
 
     print('eigenvalues: ', eig)
-    print('eigenvector: ', vector)
-    #seig = np.sort(eig)[::-1]
-    #print(seig[0:20])
-    '''start = time.clock()
+    print('eigenvector: ', eigv)
 
-    numcopies = 1000
-    for copy in xrange(numcopies):
-        runpower(matrix, n)
-
-    end = time.clock()
-
-    print ' ave cpu time = ', (end-start)/numcopies'''
+    # Question 2
+    M, n = inputfile('missing.dat')
+    M = fillmissing(M)
+    cov = np.cov(M)
+    print(cov[0:10,0:10])
+    eigv1,eig1 = eigen(cov,cov.shape[0],0.1)
