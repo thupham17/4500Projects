@@ -158,7 +158,7 @@ if __name__ == '__main__':
     # Question 3
     print eig1 #Q2 eig
     for i in range(2, M.len):
-        cov = np.cov(M[0:i,0:i])
+        cov = np.cov(M[0:i])
         eigv_tmp,eig_tmp=eigen(cov,cov.shape[0],0.1)
         if(i==M.len-1): print(eig_tmp)
 
