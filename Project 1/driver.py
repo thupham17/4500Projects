@@ -99,7 +99,7 @@ def fillmissing(matrix):
     return matrix
 
 def runpower(M,n,w):
-    '''Reads the russell_cov input file'''
+    '''Runs the power method with normalization.'''
     T = 10000 #number of iterations
     tol = 1e-06
     convergence = False
@@ -120,25 +120,51 @@ def runpower(M,n,w):
     eig = (w.T@M@w)/(w.T@w)
     return eig, np.ravel(w)
 
-def eigen(M, n, tol):
+def runpower2(M,n,w):
+    '''Runs the power method with no normalization and k is a power of 2.'''
+    T = 10000 #number of iterations
+    tol = 1e-06
+    convergence = False
+    oldnormw = np.linalg.norm(w/w[0])
+    for t in range(10):
+        w = np.linalg.matrix_power(M,2**(t))@w
+        normw = np.linalg.norm(w/w[0])
+        #convergence
+        if np.abs(normw - oldnormw)/normw < tol:
+            convergence = True
+            #print('Convergence')
+            break
+        oldnormw = normw
+    #if convergence == False:
+    #    raise NoConvergence
+
+    #Calculate eigen value using Raleigh quotient
+    w=w/w[0]
+    eig = (w.T@M@w)/(w.T@w)
+    return eig, np.ravel(w)
+
+
+def eigen(M, n, tol,power):
     vector = np.zeros((M.shape[1],100000))
     eig = np.zeros(100000)
     w0 = np.random.rand(n)
-    eig[0], vector[:,0] = runpower(M,n,w0)
+    eig[0], vector[:,0] = power(M,n,w0)
     i = 0
     while (eig[i]/eig[0] >= tol):
         M= M - eig[i]*vector[:,i].reshape(-1,1)@np.array([vector[:,i]])
         w = np.random.rand(n)
         w0 = w.reshape(-1,1) - np.array([vector[:,i]])@w.reshape(-1,1)*vector[:,i].reshape(-1,1)
-        eig[i+1], vector[:,i+1] = runpower(M,n,w0)
+        eig[i+1], vector[:,i+1] = power(M,n,w0)
         i = i+1
 
     return vector[:,0:i+1], eig[0:i+1]
 
 if __name__ == '__main__':
+
     # Question 1
     M, n = inputfile()
-    eigv, eig = eigen(M,n,0.1)
+
+    eigv, eig = eigen(M,n,0.1,runpower)
 
     #Check eigen values with numpy function
     npeig,npeigv = np.linalg.eigh(M)
@@ -151,14 +177,15 @@ if __name__ == '__main__':
     M = fillmissing(M)
     cov = np.cov(M)
     print(cov[0:10,0:10])
-    eigv1,eig1 = eigen(cov,cov.shape[0],0.1)
-    
+    eigv1,eig1 = eigen(cov,cov.shape[0],0.1,runpower)
 
-   
     # Question 3
     print eig1 #Q2 eig
     for i in range(2, M.len):
         cov = np.cov(M[0:i])
-        eigv_tmp,eig_tmp=eigen(cov,cov.shape[0],0.1)
+        eigv_tmp,eig_tmp=eigen(cov,cov.shape[0],0.1,runpower)
         if(i==M.len-1): print(eig_tmp)
 
+    #Question 4
+    eigv, eig = eigen(M,n,0.7,runpower2)
+    print(eig)
