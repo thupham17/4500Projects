@@ -8,7 +8,6 @@
 import numpy as np
 import sys
 import time
-import matplotlib.pyplot as plt
 
 '''class NoConvergence(Error):
    Raised when power method does not converge.
@@ -158,12 +157,8 @@ if __name__ == '__main__':
    
     # Question 3
     print eig1 #Q2 eig
-    eig = np.zeros(100000)
     for i in range(2, M.len):
         cov = np.cov(M[0:i,0:i])
         eigv_tmp,eig_tmp=eigen(cov,cov.shape[0],0.1)
-        eig[i]=eig_tmp
-    plt.plot(eig)
-    plt.ylim([2,M.len])
-    plt.show()
+        if(i==M.len-1): print(eig_tmp)
 
