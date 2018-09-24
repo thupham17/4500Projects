@@ -6,6 +6,7 @@ Created on Sun Sep  9 20:39:39 2018
 @author: issa18
 """
 import numpy as np
+import time
 
 #functions for Extra credit 2
 
@@ -29,3 +30,10 @@ def powermethod2(matrix, k):
         return matrix
     else:
         raise ValueError("k must be a power of 2")
+
+#trying 512 as a power of 2
+k = 512
+start = time.clock()
+powermethod2(matrix, k)
+end = time.clock()
+print end-start
