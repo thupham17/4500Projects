@@ -13,14 +13,8 @@ import time
    Raised when power method does not converge.
    sys.exit("Power method did not converge.")'''
 
-def inputfile():
+def inputfile(filename):
     '''Reads the input file'''
-    # stop the program and print an error message if no input file
-    if len(sys.argv) != 2:
-        sys.exit("Error: No data file.")
-
-    filename = sys.argv[1]
-    print("input", sys.argv[1])
 
     try:
         f = open(filename, 'r')
@@ -144,7 +138,7 @@ def runpower2(M,n,w):
     return eig, np.ravel(w)
 
 
-def eigen(M, n, tol,power):
+def eigen(M, n, tol, power):
     vector = np.zeros((M.shape[1],100000))
     eig = np.zeros(100000)
     w0 = np.random.rand(n)
@@ -160,32 +154,52 @@ def eigen(M, n, tol,power):
     return vector[:,0:i+1], eig[0:i+1]
 
 if __name__ == '__main__':
-
+    
     # Question 1
     M, n = inputfile()
 
-    eigv, eig = eigen(M,n,0.1,runpower)
+    start = time.clock()
+    eigv1, eig1 = eigen(M,n,0.5,runpower)
+    end = time.clock()
+    print('Question 1 eigenvector:\n{0}'.format(eigv1))
+    print('Question 1 eigenvalues:{0}'.format(eig1))
+
+    p1time = end-start
+    print ('Time: {}s. Number of eigenvalues:{}'.format(p1time,len(eig1)))
+
 
     #Check eigen values with numpy function
-    npeig,npeigv = np.linalg.eigh(M)
+    npeig1,npeigv1 = np.linalg.eigh(M)
 
-    print('eigenvalues: ', eig)
-    print('eigenvector: ', eigv)
 
     # Question 2
     M, n = inputfile('missing.dat')
     M = fillmissing(M)
     cov = np.cov(M)
-    print(cov[0:10,0:10])
-    eigv1,eig1 = eigen(cov,cov.shape[0],0.1,runpower)
+    start = time.clock()
+    eigv2, eig2 = eigen(cov,cov.shape[0],0.5,runpower)
+    end = time.clock()
+    print('eigenvalues: ', eig)
+    #print('eigenvector: ', eigv)
+
+    p2time = end-start
+    print ('Question 2 time: {}s. Number of eigenvalues:{}'.format(p2time,len(eig2)))
+    print('Question 2 eigenvalues:{0}'.format(eig1)) #Q2 eig
+
 
     # Question 3
-    print eig1 #Q2 eig
-    for i in range(2, M.len):
-        cov = np.cov(M[0:i])
-        eigv_tmp,eig_tmp=eigen(cov,cov.shape[0],0.1,runpower)
-        if(i==M.len-1): print(eig_tmp)
+    eig3 = {}
+    days = [2,50,100,200,250,300,400,450,504]
+    for i in days:
+        cov = np.cov(M[:,0:i])
+        eigv_tmp,eig[i] = eigen(cov,cov.shape[0],0.7,runpower)
+    for j in eig3:
+        print('Days: {0}, Eigenvalues:{1}'.format(j,eig[j]))
 
     #Question 4
-    eigv, eig = eigen(M,n,0.7,runpower2)
-    print(eig)
+    start = time.clock()
+    eigv4, eig4 = eigen(cov,n,0.3,runpower2)
+    end = time.clock()
+    print('eigenvalues: ', eig4)
+    p2time = end-start
+    print ('Extra credit time: {}s. Number of eigenvalues:{}'.format(p2time,len(eig4)))
