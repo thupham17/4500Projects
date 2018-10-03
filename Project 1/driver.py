@@ -154,9 +154,9 @@ def eigen(M, n, tol, power):
     return vector[:,0:i+1], eig[0:i+1]
 
 if __name__ == '__main__':
-    
+
     # Question 1
-    M, n = inputfile()
+    M, n = inputfile('russell_cov.txt')
 
     start = time.clock()
     eigv1, eig1 = eigen(M,n,0.5,runpower)
