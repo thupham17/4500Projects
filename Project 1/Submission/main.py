@@ -61,6 +61,8 @@ def inputfile(filename):
 
 def returns(matrix):
     returns = np.zeros((matrix.shape))
+    m = matrix.shape[1]
+    n = matrix.shape[0]
     for i in range(n):
         for j in range(m):
             if j == 0:
@@ -157,26 +159,30 @@ if __name__ == '__main__':
 
     # Question 1
     M, n = inputfile('russell_cov.txt')
-    tol = 0.5
+    tol = 0.05
     start = time.clock()
     eigv1, eig1 = eigen(M,n,tol,runpower)
     end = time.clock()
     print('\nQuestion 1')
     p1time = end-start
-    print ('Running time: {}s. Tolerance: {}. Number of eigenvalues:{}'.format(p1time,tol,len(eig1)))
+    print ('Running time: {}s. Tolerance: {}. Number of eigenvalues:{}'.format(p1time,0.05,len(eig1)))
     print('Question 1 eigenvector:\n{0}'.format(eigv1))
     print('Question 1 eigenvalues:{0}'.format(eig1))
 
     #Check eigen values with numpy function
     npeig1,npeigv1 = np.linalg.eigh(M)
-
+    #print('Standard functions\n:', npeigv1)
 
     # Question 2
     M, n = inputfile('missing.dat')
     M = fillmissing(M)
+    #M = returns(M)
+    M = np.diff(np.log(M),1)
+    #print(M[0:30,0:30])
     cov = np.cov(M)
+    '''
     start = time.clock()
-    eigv2, eig2 = eigen(cov,cov.shape[0],0.5,runpower)
+    eigv2, eig2 = eigen(cov,cov.shape[0],tol,runpower)
     end = time.clock()
 
     p2time = end-start
@@ -184,17 +190,17 @@ if __name__ == '__main__':
     print ('Running time: {}s. Tolerance: {}. Number of eigenvalues:{}'.format(p2time,tol,len(eig2)))
     print('Eigenvalues:{0}'.format(eig2)) #Q2 eig
 
-
+    
     # Question 3
     eig3 = {}
     days = [2,50,100,200,250,300,400,450,504]
     for i in days:
         cov = np.cov(M[:,0:i])
-        eigv_tmp,eig3[i] = eigen(cov,cov.shape[0],0.7,runpower)
+        eigv_tmp,eig3[i] = eigen(cov,cov.shape[0],0.05,runpower)
     print('\nQuestion 3')
     for j in eig3:
         print('Days: {0}, Eigenvalues:{1}'.format(j,eig3[j]))
-
+    '''
     #Question 4
     start = time.clock()
     eigv4, eig4 = eigen(cov,n,0.3,runpower2)
