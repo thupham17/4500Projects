@@ -231,3 +231,100 @@ s = gprimesolver(lam, sigma, x, y)
 x = x + s*y
 
 
+                                     
+                                     
+                                     
+
+#####extra credit######
+# power method from Q1
+def eigen(M, n, tol, power):
+    vector = np.zeros((M.shape[1],100000))
+    eig = np.zeros(100000)
+    w0 = np.random.rand(n)
+    eig[0], vector[:,0] = power(M,n,w0)
+    i = 0
+    while (eig[i]/eig[0] >= tol):
+        M= M - np.matmul(eig[i]*vector[:,i].reshape(-1,1),np.array([vector[:,i]]))
+        w = np.random.rand(n)
+        w0 = w.reshape(-1,1) - np.matmul(np.array([vector[:,i]]),w.reshape(-1,1)*vector[:,i].reshape(-1,1))
+        eig[i+1], vector[:,i+1] = power(M,n,w0)
+        i = i+1
+
+    return vector[:,0:i+1], eig[0:i+1]
+
+def runpower(M,n,w):
+    T = 10000 #number of iterations
+    tol = 1e-06
+    convergence = False
+    oldnormw = 0
+    for t in range(T):
+        normw = np.linalg.norm(np.matmul(M,w))
+        w = np.matmul(M,w)/normw
+
+        #convergence
+        if np.abs(normw - oldnormw)/normw < tol:
+            convergence = True
+            break
+        oldnormw = normw
+    #if convergence == False:
+    #    raise NoConvergence
+
+    #Calculate eigen value using Raleigh quotient
+    eig = np.matmul(np.matmul(w.T,M),w)/np.matmul(w.T,w)
+    return eig, np.ravel(w)
+
+
+#find eigenvectors & eigenvalues
+cov = alldata['covariance']
+eig_vecs, eig_vals = eigen(cov,cov.shape[0],0.5,runpower)
+
+#check same unit length of eig vectors
+for ev in eig_vecs.T:
+    np.testing.assert_array_almost_equal(1.0, np.linalg.norm(ev))
+
+
+#sort eigenvalues descending
+eig_pairs = [(np.abs(eig_vals[i]), eig_vecs[:,i]) for i in range(len(eig_vals))]
+eig_pairs.sort(key=lambda x: x[0], reverse=True)
+
+# Visually confirm that the list is correctly sorted by decreasing eigenvalues
+print('Eigenvalues in descending order:')
+for i in eig_pairs:
+    print(i[0])
+
+# check explained variance of eigenvalues
+count = len(eig_vals)
+
+tot = sum(eig_vals)
+var_exp = [(i / tot)*100 for i in sorted(eig_vals, reverse=True)]
+cum_var_exp = np.cumsum(var_exp)
+with plt.style.context('seaborn-whitegrid'):
+    plt.figure(figsize=(6, 4))
+
+    plt.bar(range(count), var_exp, alpha=0.5, align='center',
+            label='individual explained variance')
+    plt.step(range(count), cum_var_exp, where='mid',
+             label='cumulative explained variance')
+    plt.ylabel('Explained variance ratio')
+    plt.xlabel('Principal components')
+    plt.legend(loc='best')
+    plt.tight_layout()
+plt.show()
+
+
+# remove less than 5%
+k=count-1
+for i in range(len(var_exp)):
+    if(var_exp[i]<5):
+        k=i
+        break
+
+# choose k largest eigenvalues to construct projection matrix
+num = len(eig_vecs)
+matrix_proj = np.ndarray(shape = (num, 0))
+
+for i in range(k+1):
+    matrix_proj = np.hstack((matrix_proj, eig_pairs[i][1].reshape(num,1)))
+print('Matrix proj:\n', matrix_proj)                        
+                                     
+                                     
