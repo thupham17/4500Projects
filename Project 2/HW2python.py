@@ -236,6 +236,62 @@ x = x + s*y
                                      
 
 #####extra credit######
+# data import
+def inputfile(filename):
+    '''Reads the input file'''
+
+    try:
+        f = open(filename, 'r')
+    except IOError:
+        print ("Cannot open file \'{0}\'\n".format(filename))
+        sys.exit("bye")
+
+    # read data
+    data = f.readlines()
+    f.close()
+
+    # Parse first line
+    line0 = data[0].split()
+    if len(line0) == 0:
+        sys.exit('Empty first line.')
+
+    n = int(line0[1])
+    m = int(line0[3])
+    matrix = np.zeros((n,m))
+    for i in range(n):
+        theline = data[i+1].split()
+        for j in range(m):
+            if theline[j] == 'NA':
+                valueij = float(-1)
+            else:
+                valueij = float(theline[j])
+            matrix[i][j] = valueij
+    return matrix, n
+
+def fillmissing(matrix):
+    n = matrix.shape[0]
+    m = matrix.shape[1]
+    for i in range(n):
+        for j in range(m):
+            if matrix[i][j] == -1:
+                if j == 0:
+                    next_val = 0
+                    for k in range(j+1, m):
+                        if matrix[i][k] != -1:
+                            next_val = matrix[i][k]
+                            break
+                    matrix[i][j] = next_val
+                elif j == m-1:
+                    matrix[i][j] = matrix[i][j-1]
+                else:
+                    next_val = 0
+                    for k in range(j+1, m):
+                        if matrix[i][k] != -1:
+                            next_val = matrix[i][k]
+                            break
+                    matrix[i][j] = (matrix[i][j-1] + next_val) / 2
+    return matrix
+
 # power method from Q1
 def eigen(M, n, tol, power):
     vector = np.zeros((M.shape[1],100000))
@@ -275,8 +331,12 @@ def runpower(M,n,w):
 
 
 #find eigenvectors & eigenvalues
-cov = alldata['covariance']
-eig_vecs, eig_vals = eigen(cov,cov.shape[0],0.5,runpower)
+#cov = alldata['covariance']
+M, n = inputfile('missing.dat')
+M = fillmissing(M)
+cov = np.cov(M)
+
+eig_vecs, eig_vals = eigen(cov,cov.shape[0],0.01,runpower)
 
 #check same unit length of eig vectors
 for ev in eig_vecs.T:
@@ -297,6 +357,7 @@ count = len(eig_vals)
 
 tot = sum(eig_vals)
 var_exp = [(i / tot)*100 for i in sorted(eig_vals, reverse=True)]
+print(var_exp)
 cum_var_exp = np.cumsum(var_exp)
 with plt.style.context('seaborn-whitegrid'):
     plt.figure(figsize=(6, 4))
@@ -309,13 +370,13 @@ with plt.style.context('seaborn-whitegrid'):
     plt.xlabel('Principal components')
     plt.legend(loc='best')
     plt.tight_layout()
-plt.show()
+#plt.show()
 
 
-# remove less than 5%
+# remove less than 1%
 k=count-1
 for i in range(len(var_exp)):
-    if(var_exp[i]<5):
+    if(var_exp[i]<1):
         k=i
         break
 
@@ -323,8 +384,24 @@ for i in range(len(var_exp)):
 num = len(eig_vecs)
 matrix_proj = np.ndarray(shape = (num, 0))
 
+print (k+1)
 for i in range(k+1):
     matrix_proj = np.hstack((matrix_proj, eig_pairs[i][1].reshape(num,1)))
-print('Matrix proj:\n', matrix_proj)                        
-                                     
-                                     
+print('Matrix proj:\n', matrix_proj)
+
+# data transformation
+M_trans=matrix_proj.T.dot(M)
+cov_trans = np.cov(M_trans)
+
+# Apply Question1
+#stuff from the reading - PLACEHOLDER
+lam = 0
+sigma = 0
+mu = 0
+lower = 0
+upper = 0
+G = fxd1(lam, sigma, x, mu)
+y = linprogsolv(lower, upper, x, G)
+s = gprimesolver(lam, sigma, x, y)
+x = x + s*y
+print x                 
