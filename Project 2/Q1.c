@@ -5,10 +5,10 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
+#include "insertionSort.h"
 
 //generate a feasible allocation
-int getFeasible(int *pn, double *plb, double *pub, double *pmu, double *pcovar double *px)
-{
+double getFeasible(int *pn, double *plb, double *pub, double *pmu, double *pcovar, double *px) {
     int sum = 0;
     double x = *plb;
     double upper = *pub;
@@ -239,7 +239,7 @@ double linprosolv(double *lower, double *upper, double *px)
       for(j = 0; j < *pn ++j) {
           y[j][ind[i]] = y[j][i];
       }
-      
+
 			candidate[counter] = y;
 			counter += 1;
 		}
