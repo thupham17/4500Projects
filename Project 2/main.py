@@ -252,17 +252,29 @@ def inputfile(filename):
     if len(line0) == 0:
         sys.exit('Empty first line.')
 
-    n = int(line0[1])
-    m = int(line0[3])
-    matrix = np.zeros((n,m))
-    for i in range(n):
-        theline = data[i+1].split()
-        for j in range(m):
-            if theline[j] == 'NA':
-                valueij = float(-1)
-            else:
+    if filename == 'russell_cov.txt':
+        n = int(line0[1])
+        matrix = np.zeros((n,n))
+        line1 = data[1].split()
+        #should check that line1[0] is the string 'matrix'
+        for i in range(n):
+            theline = data[i+2].split()
+            for j in range(n):
                 valueij = float(theline[j])
-            matrix[i][j] = valueij
+                matrix[i][j] = valueij
+
+    elif filename == 'missing.dat':
+        n = int(line0[1])
+        m = int(line0[3])
+        matrix = np.zeros((n,m))
+        for i in range(n):
+            theline = data[i+1].split()
+            for j in range(m):
+                if theline[j] == 'NA':
+                    valueij = float(-1)
+                else:
+                    valueij = float(theline[j])
+                matrix[i][j] = valueij
     return matrix, n
 
 def fillmissing(matrix):
@@ -329,11 +341,20 @@ def runpower(M,n,w):
 
 #find eigenvectors & eigenvalues
 #cov = alldata['covariance']
-M, n = inputfile('missing.dat')
-M = fillmissing(M)
-cov = np.cov(M)
+#M, n = inputfile('missing.dat')
+#M = fillmissing(M)
+#cov = np.cov(M)
 
-eig_vecs, eig_vals = eigen(cov,cov.shape[0],0.01,runpower)
+#eig_vecs, eig_vals = eigen(cov,cov.shape[0],0.01,runpower)
+
+
+# get russell cov data
+M, n = inputfile('russell_cov.txt')
+eig_vecs, eig_vals = eigen(M, n, 0.1, runpower)
+
+
+
+
 
 #check same unit length of eig vectors
 for ev in eig_vecs.T:
@@ -367,7 +388,7 @@ with plt.style.context('seaborn-whitegrid'):
     plt.xlabel('Principal components')
     plt.legend(loc='best')
     plt.tight_layout()
-#plt.show()
+plt.show()
 
 
 # remove less than 5%
@@ -400,7 +421,7 @@ print matrix_diag
 # variance matrix ( D = Q - Vt*F*V )
 # F = matrix_diag? or matrix_factors?
 np.mat(matrix_proj)
-matrix_variance = np.mat(matrix_proj)*np.mat(matrix_diag)*np.mat(matrix_proj).T - np.cov(M)
+matrix_variance = np.mat(matrix_proj)*np.mat(matrix_diag)*np.mat(matrix_proj).T - M
 print ("matrix D - diagonal variance")
 print matrix_variance
 
