@@ -1,7 +1,15 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Oct  7 12:03:19 2018
+
+@author: issa18
+"""
 import numpy as np
 from sympy import Eq, Symbol, solve
-import sys
 import matplotlib.pyplot as plt
+import sys
+
 import time
 
 
@@ -12,7 +20,7 @@ def feasible(alldata):
     upper = alldata['upper']
     x = alldata['x']
 
-    print lower, upper
+    # print (lower, upper)
     # for j in xrange(n):
     #    x[j] = lower[j]
     # x  = lower
@@ -21,22 +29,23 @@ def feasible(alldata):
 
     sumx = np.sum(x)
 
-    for j in xrange(n):
-        print "lower", lower, "upper", upper
-        print j, 'sum', sumx, sumx + upper[j] - lower[j]
+    for j in range(n):
+        # print ("lower", lower, "upper",upper)
+        # print (j, 'sum', sumx, sumx + upper[j] -lower[j])
         if sumx + (upper[j] - lower[j]) >= 1.0:
             x[j] = 1.0 - sumx + lower[j]
-            print 'done'
+            # print ('done')
             break
         else:
             x[j] = upper[j]
             delta = upper[j] - lower[j]
-            print x[j], lower[j], upper[j], delta
+            # print (x[j], lower[j], upper[j], delta)
             sumx += upper[j] - lower[j]
-        print ">>>>", j, x[j], sumx
+            # print (">>>>",j, x[j], sumx)
 
-    print x
+    # print (x)
     alldata['x'] = x
+    return x
 
 
 # Reading data function from given file
@@ -52,7 +61,7 @@ def readdata(filename):
         sys.exit("empty first line")
 
     n = int(line0[1])
-    print "n = ", n
+    # print ("n = ", n)
 
     lower = np.zeros(n)
     upper = np.zeros(n)
@@ -66,7 +75,7 @@ def readdata(filename):
     while linenum <= 5 + n - 1:
         line = lines[linenum - 1]
         thisline = line.split()
-        print thisline
+        # print (thisline)
         index = int(thisline[0])
         lower[index] = float(thisline[1])
         upper[index] = float(thisline[2])
@@ -76,21 +85,21 @@ def readdata(filename):
     linenum = n + 6
     line = lines[linenum - 1]
     thisline = line.split()
-    print thisline
+    # print (thisline)
     lambdaval = float(thisline[1])
-    print "lambda = ", lambdaval
+    # print ("lambda = ", lambdaval)
     linenum = n + 10
     while linenum <= n + 10 + n - 1:
         line = lines[linenum - 1]
         thisline = line.split()
-        print thisline
+        # print (thisline)
         i = linenum - n - 10
-        print i
-        for j in xrange(n):
+        # print (i)
+        for j in range(n):
             covariance[i, j] = float(thisline[j])
         linenum += 1
 
-    print covariance
+    # print (covariance)
 
     alldata = {}
     alldata['n'] = n
@@ -99,12 +108,17 @@ def readdata(filename):
     alldata['mu'] = mu
     alldata['covariance'] = covariance
     alldata['x'] = x
+    alldata['lambda'] = lambdaval
 
     return alldata
 
 
 # the minimization function
+
+
+'''
 def fx(lam, sigma, x, mu):
+    #print(x)
     second_part = np.dot(mu, x)
     first_part = 0
     left = 0
@@ -113,123 +127,135 @@ def fx(lam, sigma, x, mu):
     j = 0
     for i in range(0, len(x)):
         left = left + sigma[i][i] * np.square(x[i])
-        for j in range(i + 1, len(x)):
+        for j in range (i+1, len(x)):
             right = right + sigma[i][j] * x[i] * x[j]
     first_part = lam * (left + right * 2)
     return first_part - second_part
 
+'''
 
-# the gradient
+
+# This is the quicker version of fx
+def fx(lam, sigma, x, mu):
+    second_part = np.dot(mu, x)
+    first_part = lam * np.dot(np.dot(x, sigma), x.T)
+    return first_part - second_part
+
+
+'''
+#the gradient
 def fxd1(lam, sigma, x, mu):
     grad_vector = np.empty(len(x), float)
-    i = 0
-    j = 0
-    for i in range(0, len(x)):
-        simple = 2 * lam * sigma[i][i] * x[i] - mu[i]
+    for i in range(len(x)):
+        simple = 2 * lam * sigma[i][i]*x[i] - mu[i]
         harder = 0
-        for j in range(0, len(x)):
+        for j in range(len(x)):
             if j != i:
-                harder += sigma[i][j] * x[j]
-            harder = harder * 2 * lam
+                harder = harder + (sigma[i][j]*x[j])
+        harder = harder * 2 * lam
         grad_vector[i] = simple + harder
     return grad_vector
 
+'''
 
-#The g function with s
-def gprimesolver(lam, sigma, x, y):
+
+def fxd1(lam, sigma, x, mu):
+    first_part = 2 * lam * np.dot(sigma, x)
+    return first_part - mu
+
+
+# The g function with s
+def gprimesolver(lam, sigma, x, y, mu):
     s = Symbol('s')
     second_part = np.dot(mu, y)
     first_part = 0
     left = 0
     right = 0
-    i = 0
-    j = 0
     for i in range(0, len(x)):
-        left = left + sigma[i][i] * (y[i]*x[i] + 2*s*np.square(y[i]))
-        for j in range(i+1, len(x)):
-            right = right + sigma[i][j] * (x[i]*y[j] + x[j]*y[i] + 2*s*y[i]*y[j])
+        left = left + sigma[i][i] * (y[i] * x[i] + s * np.square(y[i]))
+        for j in range(i + 1, len(x)):
+            right = right + sigma[i][j] * (x[i] * y[j] + x[j] * y[i] + 2 * s * y[i] * y[j])
     first_part = 2 * lam * (left + right)
     eq = Eq(first_part - second_part, 0)
     sval = solve(eq)
-    if sval > 1:
+    sval_out = sval[0]
+    # print('sval is', sval)
+    if sval_out > 1.0:
+        # print('about to return 1')
         return 1
-    elif sval < 0:
+    elif sval_out < 0.0:
         return 0
     else:
-        return sval
+        return sval_out
 
-#TODO: check if such vector exists or not
+
 def linprogsolv(lower, upper, x, g):
+    # print('In LinProgSolve')
     candidateys = list()
-    m=0
+    m = 0
+    # sortedg = sorted(g, reverse = True)
+    indexes = np.argsort(g)[::-1]
+    # print('g is', g)
+    # print('indexes is', indexes)
+    xordered = orderit(indexes, x)
+    # print('unordered x is', x)
+    # print('ordered x is', xordered)
+    upperoredered = orderit(indexes, upper)
+    lowerordered = orderit(indexes, lower)
+
     for i in range(len(x)):
-        y = np.empty(len(x), float)
+        yordered = np.empty(len(x), float)
         for j in range(len(x)):
-            if(j < m):
-                y[j] = lower[j] - x[j]
-            elif(j > m):
-                y[j] = upper[j] - x[j]
-            elif(j == m):
-                y[j] = 0
-        y[m] = 0 - sum(y)
-        if isfeasible(x, lower, upper, y) == 1:
+            # print(q)
+            if (j < m):
+                yordered[j] = lowerordered[j] - xordered[j]
+            elif (j > m):
+                yordered[j] = upperoredered[j] - xordered[j]
+            else:
+                yordered[j] = 0
+        yordered[m] = 0 - sum(yordered)
+        # print('Y is', y)
+        y = unorderit(indexes, yordered)
+        # print('y is', y)
+        if isfeasible(x, lower, upper, y, indexes.tolist().index(m)) == 1:
             candidateys.append(y)
+            # indexes.tolist().index(m) takes place of m
+            # print('Y is feasible')
+            # print(candidateys)
         m += 1
+    # stopping condition
+    if len(candidateys) == 0:
+        # print('Returning 0')
+        return np.zeros(len(x))
     minimums = []
     for k in range(len(candidateys)):
         minimums.append(np.dot(g, candidateys[k]))
     idx = minimums.index(min(minimums))
+    # print('Idx is', idx)
+    # print(candidateys)
+    # print(candidateys[idx])
     return candidateys[idx]
 
 
-
-def isfeasible(x, lower, upper, candidate):
-    counter = 0
-    for j in range(len(candidate)):
-        if lower[j] - x[j] <= candidate[j] and upper[j] - x[j] >= candidate[j]:
-            counter += 1
-    if counter == len(candidate):
+def isfeasible(x, lower, upper, candidate, m):
+    if candidate[m] >= (lower[m] - x[m]) and candidate[m] <= (upper[m] - x[m]):
         return 1
     else:
         return 0
 
 
-# running the code
-#if len(sys.argv) != 2:  # the program name and the datafile
-    # stop the program and print an error message
-#    sys.exit("usage: eigen.py datafile ")
-
-#filename = sys.argv[1]
-filename="example.txt"
-
-#print "input: ", sys.argv[1]
-
-try:
-    f = open(filename, 'r')
-except IOError:
-    print ("Cannot open file %s\n" % filename)
-    sys.exit("bye")
-# read data
-alldata = readdata(filename)
-# stuff from the reading - PLACEHOLDER
-lam = 0
-sigma = 0
-mu = 0
-lower = 0
-upper = 0
-# find a feasible solution
-x = feasible(alldata)
-# improvement phase
-# Compute gk, the gradient
-##G = fxd1(lam, sigma, x, mu)
-# Find the y vector
-##y = linprogsolv(lower, upper, x, G)
-# Find s
-##s = gprimesolver(lam, sigma, x, y)
-##x = x + s * y
+def orderit(index, thelist):
+    ordered = np.empty(len(thelist), float)
+    for i in range(0, len(thelist)):
+        ordered[i] = thelist[index[i]]
+    return ordered
 
 
-
+def unorderit(index, thelist):
+    unordered = np.empty(len(thelist), float)
+    for i in range(0, len(thelist)):
+        unordered[index[i]] = thelist[i]
+    return unordered
 
 
 #####extra credit######
@@ -349,7 +375,25 @@ def runpower(M,n,w):
 
 
 # get russell cov data
-M, n = inputfile('russell_cov.txt')
+
+
+# running the code
+if len(sys.argv) != 2:  # the program name and the datafile
+    # stop the program and print an error message
+    sys.exit("usage: eigen.py datafile ")
+
+filename = sys.argv[1]
+
+# print ("input: ", sys.argv[1])
+
+try:
+    f = open(filename, 'r')
+except IOError:
+    # print ("Cannot open file %s\n" % filename)
+    sys.exit("bye")
+# read data
+
+M, n = inputfile(filename)
 eig_vecs, eig_vals = eigen(M, n, 0.1, runpower)
 
 
@@ -388,7 +432,7 @@ with plt.style.context('seaborn-whitegrid'):
     plt.xlabel('Principal components')
     plt.legend(loc='best')
     plt.tight_layout()
-plt.show()
+#plt.show()
 
 
 # remove less than 5%
@@ -407,9 +451,7 @@ for i in range(k+1):
 print('Matrix proj:\n', matrix_proj)
 
 
-# factors covariance matrix:  [r*N]*[Nxr]
-#M_trans=matrix_proj.T.dot(M)
-#matrix_factors=np.cov(M_trans)
+
 
 temp=[]
 for i in range(k+1):
@@ -426,17 +468,90 @@ print ("matrix D - diagonal variance")
 print matrix_variance
 
 
+# generate random mu and returns
+n = len(M)
+sigma = np.cov(matrix_proj.T.dot(M))  # factors covariance matrix:  [r*N]*[Nxr]
+mean = (np.random.rand(n)-0.5)*20
+mu = mean.dot(matrix_proj) # 1xN => [1xN][Nxr] = [1xr]
+print ("mu :", mu)
+print ("sigma :", sigma)
+returns = np.random.multivariate_normal(mu, sigma, 100).T
+s=0
+
+alldata={}
+alldata['n']=len(M)
+alldata['lambda']=10.0
+alldata['lower']= [np.amin(returns[i]) for i in range(k+1)]
+alldata['upper']=[np.amax(returns[i]) for i in range(k+1)]
+alldata['covariance'] = sigma
+alldata['x']= returns
+
+lam = alldata['lambda']
+lower = alldata['lower']
+upper = alldata['upper']
+s = 0
+
+# find a feasible solution
+x = feasible(alldata)
+
+print('The first feasible x is:', x)
+print('type of x is', type(x))
+# print ("X is " + str(x))
+# improvement phase
+# Compute gk, the gradient
+G = fxd1(lam, sigma, x, mu)
+# print ("G is " + str(G))
+# tester = fxd1(lam, sigma, [1,1,1,1], mu)
+# print ("tester is" + str(tester))
+# Find the y vector
+
+y = linprogsolv(lower, upper, x, G)
+
+# print ("Y is " + str(y))
+
+numberofloops = 0
+
+while any(v != 0 for v in y):
+    numberofloops += 1
+    print('\n')
+    print('The number of loops is:', numberofloops)
+    print('\n')
+    # print('In the Loop')
+    s = gprimesolver(lam, sigma, x, y, mu)
+    # print('S is', s)
+    oldobj = fx(lam, sigma, x, mu)
+    print('The latest x is:', x)
+    print('The latest y is:', y)
+
+    x = x + s * y
+    # print('x is', x)
+    latestobj = fx(lam, sigma, x, mu)
+
+    if (oldobj - latestobj < 0.00000001 or numberofloops > 20000):
+        break
+
+    print('\n')
+    print('The Latest Objective Value is', latestobj)
+    # print('The corresponding x is', x)
+    print('\n')
+
+    G = fxd1(lam, sigma, x, mu)
+    y = linprogsolv(lower, upper, x, G)
+    # print('value of loss func is', fx(lam, sigma, x, mu))
+# print('X is next')
+# print(x)
+print('\n')
+print('\n')
+print('\n')
+print('\n')
+print('\n The Final Solution is Below:')
+print('\n')
+final = fx(lam, sigma, x, mu)
+print('The Objective Value is:', final)
+print('\n')
+print('The correspinding x is:', x)
+print('\n')
+# print('final is', final)
 
 
-# Apply Question1
-#stuff from the reading - PLACEHOLDER
-lam = 0
-sigma = 0
-mu = 0
-lower = 0
-upper = 0
-#G = fxd1(lam, sigma, x, mu)
-#y = linprogsolv(lower, upper, x, G)
-#s = gprimesolver(lam, sigma, x, y)
-#x = x + s*y
-#print x
+
