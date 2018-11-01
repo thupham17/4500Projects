@@ -217,7 +217,7 @@ def linprogsolv(lower, upper, x, g):
         # print('Y is', y)
         y = unorderit(indexes, yordered)
         # print('y is', y)
-        if isfeasible(x, lower, upper, y, indexes.tolist().index(m)) == 1:
+        if isfeasible(x, lower, upper, y, indexes[m]) == 1:
             candidateys.append(y)
             # indexes.tolist().index(m) takes place of m
             # print('Y is feasible')
@@ -344,10 +344,3 @@ print('\n')
 print('The correspinding x is:', x)
 print('\n')
 # print('final is', final)
-
-
-
-
-
-
-

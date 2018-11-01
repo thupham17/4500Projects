@@ -1,4 +1,4 @@
-function qp()
+function qp(a)
 %
 % This example formulates and solves the following simple QP model:
 %      lambda*x'Qx + cx
@@ -8,7 +8,7 @@ function qp()
 
 names = {'x1', 'x2', 'x3', 'x4'};
 model.varnames = names;
-model.Q = 10*sparse([54.00 -0.30 -0.02 0.00; -0.30  12.00 0.50  1.00; -0.02   0.50 4.00  0.3; 0.00   1.0  0.3   0.02]);
+model.Q = 10*sparse(a);
 model.obj = [-20.0 -0.04 -0.10 0.05];
 model.A = sparse([1 1 1 1]);
 model.rhs = [1];

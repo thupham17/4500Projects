@@ -2,15 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "feasible.h"
+#include "methods.h"
 
 int readit(char *nameoffile, int *addressofn, double **, double **, double **, double **);
 
 int main(int argc, char **argv)
 {
     int retcode = 0;
-    int i,n;
+    int n;
     double *lb, *ub, *covariance, *mu, lambda;
+    double Fnew;
 
     if (argc != 2){
     	  printf("usage: qp1 filename\n");  retcode = 1;
@@ -18,13 +19,57 @@ int main(int argc, char **argv)
       }
 
     retcode = readit(argv[1], &n, &lb, &ub, &mu, &covariance);
+    lambda = 10;
 
-    // initialize x
-    double * x = malloc(n * sizeof(double));
-    
+    double s, F, ynorm;
+    ynorm = 0;
     // get feasible x
-    getFeasible(&n, lb, ub, mu, covariance, x);
+    double *x = getFeasible(&n, lb, ub, mu, covariance);
+    printf("x0: ");
+    for (int i = 0; i < n; i++) {
+        printf("%g ", x[i]);
+    }
+    printf("\n");
 
+    Fnew = getFx(n, mu, covariance, 10, x);
+    printf("F = %g\n",Fnew);
+
+    int iter = 0;
+    printf("\n");
+    while (iter == 0 || iter < 100000) {
+        printf("Iteration: %d\n",iter);
+        printf("diff = %g",Fnew - F);
+        double * y = getdX(n, mu, covariance, lambda, lb, ub, x);
+        ynorm = 0;
+        printf("y: ");
+        for (int i = 0; i < n; i++) {
+            ynorm += pow(y[i],2);
+            printf("%g ", y[i]);
+        }
+        printf("\n");
+
+        s =  findS(n, x, y, mu, covariance, 10);
+        printf("s = %g\n",s);
+
+        printf("x: ");
+        for (int i = 0; i < n; i++) {
+            x[i] = x[i] +s*y[i];
+            printf("%g ", x[i]);
+        }
+        printf("\n");
+
+        F = Fnew;
+        Fnew = getFx(n, mu, covariance, 10, x);
+        printf("F = %g\n",Fnew);
+        iter++;
+    }
+
+
+    for (int i = 0; i < n; i++) {
+      printf("%g\n",x[i]);
+    }
+    F = getFx(n, mu, covariance, 10, x);
+    printf("F = %g",F);
     BACK:
     return retcode;
 }
@@ -35,7 +80,7 @@ int readit(char *filename, int *address_of_n, double **plb, double **pub,
 	int readcode = 0, fscancode;
 	FILE *datafile = NULL;
 	char buffer[100];
-	int n, j;
+	int n, i, j;
 	double *lb = NULL, *ub = NULL, *mu = NULL, *covariance = NULL;
 
 	datafile = fopen(filename, "r");
@@ -83,11 +128,19 @@ int readit(char *filename, int *address_of_n, double **plb, double **pub,
 		printf("j = %d lb = %g ub = %g mu = %g\n", j, lb[j], ub[j], mu[j]);
 	}
 
-
-	fscanf(datafile, "%s", buffer);
 	fscanf(datafile, "%s", buffer);
 
-	fscanf(datafile, "%s", buffer); /* reading 'covariance'*/
+  fscanf(datafile, "%s", buffer);
+
+	fscanf(datafile, "%s", buffer);
+
+  /* reading 'covariance'*/
+  for (i = 0; i < n; i++){
+    for (j = 0; j < n; j++){
+      fscanf(datafile, "%s", buffer);
+      covariance[i*n + j] = atof(buffer);
+    }
+  }
 
 	fscanf(datafile, "%s", buffer);
 	if (strcmp(buffer, "END") != 0){

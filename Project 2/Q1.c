@@ -44,7 +44,7 @@ double getFeasible(int *pn, double *plb, double *pub, double *pmu, double *pcova
     }
 }
 
-\\ Find F
+// Find F
 int getF(int *pn, double *px, double *pmu, double *pcov, double *lambda) {
     double cov = 0;
     double mean = 0;
