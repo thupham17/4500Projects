@@ -61,6 +61,3 @@ def writelp(lpfilename, prices, deviations, numsec, numscen):
     lpfile.close()
 
     return 0
-    
-if __name__ == '__main__':
-    test =
