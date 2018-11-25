@@ -5,8 +5,8 @@ from arbwriter import writelp
 from mysolver import lpsolver
 
 
-if len(sys.argv) != 3: 
-    sys.exit("usage: arbtest.py datafilename lpfilename\n")
+if len(sys.argv) != 4:
+    sys.exit("usage: main.py datafilename datafilename lpfilename\n")
 
 #now open and read data file with price information
 
@@ -42,7 +42,7 @@ while i <= numscen:
     # should check that the line contains numsec + 1 words
 
     p[i][0] = 1 + r*(i != 0) # handles the price of cash
-    
+
     j = 1
 
     while j <= numsec:
@@ -57,7 +57,7 @@ print(p)
 print "\n"
 
 
-#open and read file with deviation information 
+#open and read file with deviation information
 try:
     datafile = open(sys.argv[2], 'r') # opens the data file
 except IOError:
@@ -98,14 +98,14 @@ print(dev)
 
 
 
-#now write LP file, now done in a separate function (should read data this way, as well)
+now write LP file, now done in a separate function (should read data this way, as well)
 
-#lpwritecode = writelp(sys.argv[2], p, numsec, numscen)
+lpwritecode = writelp(sys.argv[3], p, numsec, numscen)
 
-#print "wrote LP to file", sys.argv[2],"with code", lpwritecode
+print "wrote LP to file", sys.argv[3],"with code", lpwritecode
 
-#now solve lp 
+now solve lp
 
-#lpsolvecode = lpsolver(sys.argv[2], "test.log")
+lpsolvecode = lpsolver(sys.argv[3], "test.log")
 
-#print "solved LP at", sys.argv[2],"with code", lpsolvecode 
+print "solved LP at", sys.argv[3],"with code", lpsolvecode
