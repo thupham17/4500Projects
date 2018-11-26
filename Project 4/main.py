@@ -98,7 +98,7 @@ print(dev)
 
 
 
-now write LP file, now done in a separate function (should read data this way, as well)
+#now write LP file, now done in a separate function (should read data this way, as well)
 
 lpwritecode = writelp(sys.argv[3], p, numsec, numscen)
 
