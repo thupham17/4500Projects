@@ -24,6 +24,7 @@ def writelp(lpfilename, prices, deviations, numsec, numscen):
         j = 0
         while j <= numsec:
             if prices[k][j] >= 0:
+                print "now writing LP to file", lpfilename
                 lpfile.write("+ ")
                 lpfile.write(str(prices[k][j]) + " u" + str(k) + str(j) + " -")
                 lpfile.write(str(deviations[k][j]) + " u" + str(k) + str(j) + " -")

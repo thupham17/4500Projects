@@ -53,7 +53,7 @@ while i <= numscen:
 
     i += 1
 
-print(p)
+print("p",p)
 print "\n"
 
 
@@ -74,7 +74,7 @@ info_line = lines[l - 1].split()
 securities = int(info_line[0])
 scenarios = int(info_line[1])
 
-dev = [[0]*(securities + 1) for _ in range(scenarios)]
+dev = [[0]*(securities + 1) for _ in range(scenarios+1)]
 
 #i = 0
 #j = 0
@@ -89,22 +89,21 @@ while (m < (securities + 1)*scenarios):
     i = int(thisline[1]) - 1
     j = int(thisline[0])
 
-    dev[i][j] = deviation
+    dev[i+1][j] = deviation
 
     m += 1
 
-print(dev)
-
+print("dev",dev)
 
 
 
 #now write LP file, now done in a separate function (should read data this way, as well)
 
-lpwritecode = writelp(sys.argv[3], p, numsec, numscen)
+lpwritecode = writelp(sys.argv[3], p, dev, numsec, numscen)
 
 print "wrote LP to file", sys.argv[3],"with code", lpwritecode
 
-now solve lp
+#now solve lp
 
 lpsolvecode = lpsolver(sys.argv[3], "test.log")
 
