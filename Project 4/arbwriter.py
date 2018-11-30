@@ -13,7 +13,7 @@ def writelp(lpfilename, prices, deviations, numsec, numscen):
     while j <= numsec:
         if prices[0][j] >= 0:
             lpfile.write("+ ")
-            lpfile.write(str(prices[0][j]) + " x" + str(j)+" ")
+        lpfile.write(str(prices[0][j]) + " x" + str(j)+" ")
         j += 1
     lpfile.write("\nSubject to\n")
 
@@ -26,10 +26,10 @@ def writelp(lpfilename, prices, deviations, numsec, numscen):
             if prices[k][j] >= 0:
                 print "now writing LP to file", lpfilename
                 lpfile.write("+ ")
-                lpfile.write(str(prices[k][j]) + " u" + str(k) + str(j) + " -")
-                lpfile.write(str(deviations[k][j]) + " u" + str(k) + str(j) + " -")
-                lpfile.write(str(prices[k][j]) + " v" + str(k) + str(j) + " -")
-                lpfile.write(str(deviations[k][j]) + " v" + str(k) + str(j) + " ")
+            lpfile.write(str(prices[k][j]) + " u" + str(k) + str(j) + " -")
+            lpfile.write(str(deviations[k][j]) + " u" + str(k) + str(j) + " -")
+            lpfile.write(str(prices[k][j]) + " v" + str(k) + str(j) + " -")
+            lpfile.write(str(deviations[k][j]) + " v" + str(k) + str(j) + " ")
             j += 1
         lpfile.write(">= 0\n")
         k += 1

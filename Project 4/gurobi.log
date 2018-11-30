@@ -22,3 +22,137 @@ Iteration    Objective       Primal Inf.    Dual Inf.      Time
 
 Solved in 16 iterations and 0.00 seconds
 Optimal objective -5.130025247e+00
+
+Gurobi 7.5.2 (mac64, Python) logging started Fri Nov 30 11:38:23 2018
+
+Academic license - for non-commercial use only
+Warning: lp file contains 32 repeated variable(s) in constraints, grouped them, 0 cancellation
+Read LP format model from file test.lp
+Reading time = 0.03 seconds
+: 24 rows, 49 columns, 97 nonzeros
+Optimize a model with 24 rows, 49 columns and 97 nonzeros
+Coefficient statistics:
+  Matrix range     [9e-03, 3e+01]
+  Objective range  [1e+00, 3e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [0e+00, 0e+00]
+Presolve removed 5 rows and 10 columns
+Presolve time: 0.00s
+Presolved: 19 rows, 39 columns, 81 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0   -1.2090000e+01   2.615888e+01   0.000000e+00      0s
+      16   -5.1300252e+00   0.000000e+00   0.000000e+00      0s
+
+Solved in 16 iterations and 0.01 seconds
+Optimal objective -5.130025247e+00
+
+Gurobi 7.5.2 (mac64, Python) logging started Fri Nov 30 12:42:24 2018
+
+Academic license - for non-commercial use only
+Read LP format model from file test.lp
+Reading time = 0.00 seconds
+: 24 rows, 49 columns, 97 nonzeros
+Optimize a model with 24 rows, 49 columns and 97 nonzeros
+Coefficient statistics:
+  Matrix range     [1e-02, 3e+01]
+  Objective range  [1e+00, 3e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [0e+00, 0e+00]
+Presolve removed 24 rows and 49 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0   -5.4114739e+00   0.000000e+00   0.000000e+00      0s
+
+Solved in 0 iterations and 0.01 seconds
+Optimal objective -5.411473862e+00
+
+Gurobi 7.5.2 (mac64, Python) logging started Fri Nov 30 12:53:24 2018
+
+Academic license - for non-commercial use only
+Warning: lp file contains 32 repeated variable(s) in constraints, grouped them, 0 cancellation
+Read LP format model from file test.lp
+Reading time = 0.02 seconds
+: 24 rows, 49 columns, 97 nonzeros
+Optimize a model with 24 rows, 49 columns and 97 nonzeros
+Coefficient statistics:
+  Matrix range     [9e-03, 3e+01]
+  Objective range  [1e+00, 3e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [0e+00, 0e+00]
+Presolve removed 5 rows and 10 columns
+Presolve time: 0.00s
+Presolved: 19 rows, 39 columns, 81 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0   -1.2090000e+01   2.615888e+01   0.000000e+00      0s
+      16   -5.1300252e+00   0.000000e+00   0.000000e+00      0s
+
+Solved in 16 iterations and 0.01 seconds
+Optimal objective -5.130025247e+00
+
+Gurobi 7.5.2 (mac64, Python) logging started Fri Nov 30 12:55:51 2018
+
+Academic license - for non-commercial use only
+Read LP format model from file test.lp
+Reading time = 0.00 seconds
+: 24 rows, 49 columns, 97 nonzeros
+Optimize a model with 24 rows, 49 columns and 97 nonzeros
+Coefficient statistics:
+  Matrix range     [1e-02, 3e+01]
+  Objective range  [1e+00, 3e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [0e+00, 0e+00]
+Presolve removed 24 rows and 49 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0   -5.4114739e+00   0.000000e+00   0.000000e+00      0s
+
+Solved in 0 iterations and 0.00 seconds
+Optimal objective -5.411473862e+00
+
+Gurobi 7.5.2 (mac64, Python) logging started Fri Nov 30 13:05:19 2018
+
+Academic license - for non-commercial use only
+Read LP format model from file test.lp
+Reading time = 0.03 seconds
+: 24 rows, 49 columns, 97 nonzeros
+Optimize a model with 24 rows, 49 columns and 97 nonzeros
+Coefficient statistics:
+  Matrix range     [1e-02, 3e+01]
+  Objective range  [1e+00, 9e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [0e+00, 0e+00]
+Presolve removed 24 rows and 49 columns
+Presolve time: 0.01s
+Presolve: All rows and columns removed
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0   -1.4411474e+01   0.000000e+00   0.000000e+00      0s
+
+Solved in 0 iterations and 0.01 seconds
+Optimal objective -1.441147386e+01
+
+Gurobi 7.5.2 (mac64, Python) logging started Fri Nov 30 13:19:52 2018
+
+Academic license - for non-commercial use only
+Read LP format model from file test.lp
+Reading time = 0.00 seconds
+: 24 rows, 49 columns, 105 nonzeros
+Optimize a model with 24 rows, 49 columns and 105 nonzeros
+Coefficient statistics:
+  Matrix range     [1e-02, 3e+01]
+  Objective range  [1e+00, 9e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [0e+00, 0e+00]
+Presolve removed 22 rows and 43 columns
+Presolve time: 0.00s
+Presolved: 2 rows, 6 columns, 12 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0   -6.6176120e+01   6.090838e+00   0.000000e+00      0s
+       2   -1.4179358e+01   0.000000e+00   0.000000e+00      0s
+
+Solved in 2 iterations and 0.01 seconds
+Optimal objective -1.417935808e+01
